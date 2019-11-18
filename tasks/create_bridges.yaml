@@ -1,0 +1,35 @@
+---
+- name: install bridge utils
+  become: yes
+  package:
+      name: bridge-utils
+
+- name: disable netfilter for bridges
+  become: yes
+  copy:
+      dest: /etc/sysctl.d/bridge.conf
+      content: |
+          net.bridge.bridge-nf-call-ip6tables=0
+          net.bridge.bridge-nf-call-iptables=0
+          net.bridge.bridge-nf-call-arptables=
+
+- name: create bridges
+  command: "brctl addbr {{ item.name | mandatory }}"
+  ignore_errors: true
+  loop: "{{ bridges }}"
+
+
+- name: set bridges to hub mode
+  command: "brctl setageing {{ item.name | mandatory }} 0"
+  when: item.disable_ageing
+  loop: "{{ bridges }}"
+
+- name: add interface to bridge
+  command: "brctl addif {{ item.name | mandatory}} {{ item.member_nic | mandatory }}"
+  register: result
+  failed_when: "'No such' in result.stderr"
+  loop: "{{ bridges }}"
+
+- name: bring bridges up
+  command: "ip link set {{ item.name | mandatory }} up"
+  loop: "{{ bridges }}"

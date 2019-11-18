@@ -1,0 +1,19 @@
+---
+# defaults file for fake-overcloud-nodes
+
+bridges:
+  - br-vlans:
+    name: br-vlans
+    member_nic: enp1s0f1
+    disable_ageing: True
+guest_nic_name: enp1s0f1
+
+vm_name_prefix: overcloud
+vm_disk_size: 30G
+guest_vms_count: 10
+vms_image_location: /vms
+
+overcloud_node:
+  memory: 6
+  vcpu: 2
+

@@ -1,0 +1,47 @@
+---
+# tasks file for fake-overcloud-nodes
+- name: install pkgs for KVM
+  package:
+      state: latest
+      name: "{{ packages }}"
+  vars:
+    packages:
+      - qemu-kvm
+      - libvirt
+      - libvirt-python
+      - libguestfs-tools
+      - virt-install
+      - bridge-utils
+      - qemu-img
+      - qemu-system-x86
+
+- name: Setup bridges for VMs
+  import_tasks: create_bridges.yaml
+
+- name: Create directory
+  file:
+      path: "{{ vms_image_location }}"
+      state: directory
+
+- name: Create image files
+  command: "qemu-img create -f qcow2 {{ vms_image_location }}/{{vm_name_prefix ~'-%s.qcow2' | format(item) }} {{ vm_disk_size }}"
+  args:
+    creates: "{{ vms_image_location }}/{{vm_name_prefix ~'-%s.qcow2' | format(item) }}"
+  loop: "{{ range(0, guest_vms_count) | list }}"
+  # async: 1
+  # poll: 0
+
+- name: Enable libvirtd
+  systemd:
+      name: libvirtd.service
+      enabled: yes
+      state: started
+
+- name: Define VMs
+  virt:
+      xml: "{{ lookup('template', 'fake-overcloud-vm.xml.j2') }}"
+      command: define
+      name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
+  loop: "{{ range(0, guest_vms_count) | list }}"
+  # async: 60
+  # poll: 0

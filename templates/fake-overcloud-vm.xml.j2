@@ -1,0 +1,58 @@
+{% set vm_name = vm_name_prefix ~ '-' ~ item %}
+{% set vm_disk_image = vms_image_location ~ '/' ~ vm_name_prefix ~ '-' ~ item ~ '.qcow2' %}
+{# {% set vm_disk_image = vms_image_location  vm_name_prefix ~'-%s.qcow2' | format(item) }}#}
+<domain type='kvm'>
+  <name>{{ vm_name }}</name>
+  <uuid>{{ vm_name | to_uuid }}</uuid>
+  <memory unit='GiB'>{{ overcloud_node.memory }}</memory>
+  <currentMemory unit='GiB'>{{ overcloud_node.memory }}</currentMemory>
+  <vcpu placement='static'>{{ overcloud_node.vcpu }}</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-q35-3.1'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <vmport state='off'/>
+  </features>
+  <cpu mode='host-model' check='partial'>
+    <model fallback='allow'/>
+  </cpu>
+  <clock offset='utc'> 
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='{{ vm_disk_image }}'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+    <controller type='sata' index='0'>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x1f' function='0x2'/>
+    </controller>
+    {% for bridge in bridges %}}
+    <interface type='bridge'>
+      <mac address='{{ '52:54:00' | random_mac }}'/>
+      <source bridge='{{ bridge.name }}'/>
+      <model type='virtio'/>
+    {% endfor %}
+    </interface>
+    <memballoon model='virtio'>
+    </memballoon>
+    <rng model='virtio'>
+      <backend model='random'>/dev/urandom</backend>
+    </rng>
+  </devices>
+</domain>
+
