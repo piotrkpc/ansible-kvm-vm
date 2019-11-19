@@ -28,8 +28,6 @@
   args:
     creates: "{{ vms_image_location }}/{{vm_name_prefix ~'-%s.qcow2' | format(item) }}"
   loop: "{{ range(0, guest_vms_count) | list }}"
-  # async: 1
-  # poll: 0
 
 - name: Enable libvirtd
   systemd:
@@ -43,5 +41,3 @@
       command: define
       name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
   loop: "{{ range(0, guest_vms_count) | list }}"
-  # async: 60
-  # poll: 0

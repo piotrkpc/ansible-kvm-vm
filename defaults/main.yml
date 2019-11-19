@@ -6,7 +6,6 @@ bridges:
     name: br-vlans
     member_nic: enp1s0f1
     disable_ageing: True
-guest_nic_name: enp1s0f1
 
 vm_name_prefix: overcloud
 vm_disk_size: 30G
