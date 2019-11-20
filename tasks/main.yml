@@ -47,8 +47,10 @@
     virt:
       command: destroy
       name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
-    register: results
-    failed_when: "'domain is not running' not in results.stderr"
+    register: result
+    failed_when:
+      - '"domain is not running" not in result.stderr'
+      - '"domain is not running" not in result.stdout'
     loop: "{{ range(0, guest_vms_count) | list }}"
 
   - name: Undefine VMs
