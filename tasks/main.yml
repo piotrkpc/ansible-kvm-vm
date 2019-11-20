@@ -41,3 +41,24 @@
       command: define
       name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
   loop: "{{ range(0, guest_vms_count) | list }}"
+
+- name: Destroy VMs
+  virt:
+    command: destroy
+    name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
+  loop: "{{ range(0, guest_vms_count) | list }}"
+  when: clean_vms|bool
+
+- name: Undefine VMs
+  virt:
+    command: undefine
+    name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
+  loop: "{{ range(0, guest_vms_count) | list }}"
+  when: clean_vms|bool
+
+- name: Cleanup the disk images
+  file:
+      path: "{{ vms_image_location }}/{{vm_name_prefix ~'-%s.qcow2' | format(item) }}" 
+      state: absent 
+  loop: "{{ range(0, guest_vms_count) | list }}"
+  when: clean_vms|bool
