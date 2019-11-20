@@ -37,7 +37,7 @@
 
 - name: Define VMs
   virt:
-      xml: "{{ lookup('template', 'fake-overcloud-vm.xml.j2') }}"
+      xml: "{{ lookup('template', 'overcloud-vm.xml.j2') }}"
       command: define
       name: "{{ vm_name_prefix ~'-%s' | format(item) }}"
   loop: "{{ range(0, guest_vms_count) | list }}"
