@@ -7,7 +7,7 @@ bridges:
     member_nic: enp1s0f1
     disable_ageing: True
 
-vm_name_prefix: overcloud
+vm_name_prefix: "{{ ansible_hostname }} ~ overcloud"
 vm_disk_size: 30G
 guest_vms_count: 10
 vms_image_location: /vms
@@ -16,3 +16,4 @@ overcloud_node:
   memory: 6
   vcpu: 2
 
+clean_vms: False
