@@ -16,6 +16,7 @@
   </features>
   <cpu mode='custom' match='exact' check='partial'>
     <model fallback='allow'>Skylake-Client-IBRS</model>
+    <feature policy='require' name='vmx'/>
   </cpu>
   <clock offset='utc'>
     <timer name='rtc' tickpolicy='catchup'/>
